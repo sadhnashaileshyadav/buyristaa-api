@@ -2,24 +2,15 @@ import {
   IsEmail,
   IsIn,
   IsNotEmpty,
-  IsNumber,
   IsPhoneNumber,
   IsString,
   ValidateIf,
 } from 'class-validator';
 import UserInterface from './interfaces/user.interface';
 import { isUnique } from 'src/lib/validator/is-unique';
-import { Transform } from 'class-transformer';
+import { Role } from 'src/roles/role.enum';
 
 export class CreateUserDto implements UserInterface {
-  @IsNotEmpty()
-  @IsNumber()
-  @Transform(({ value }) => {
-    return Number(value);
-  })
-  role: number;
-
-  @IsNotEmpty()
   @IsString()
   name: string;
 
@@ -45,4 +36,7 @@ export class CreateUserDto implements UserInterface {
   })
   @ValidateIf((o) => o.password !== o.confirmPassword)
   confirmPassword: string;
+
+  @IsString()
+  role: Role;
 }

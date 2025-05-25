@@ -16,7 +16,7 @@ export class DbConfig implements TypeOrmOptionsFactory {
       password: this.configService.get('DB_PASSWORD'),
       database: this.configService.get('DB_NAME'),
       entities: ['dist/**/**/*.entity{.ts,.js}'],
-      seeds: [InitSeeder],
+      seeds: [],
       synchronize: this.configService.get('DB_SYNC'),
       logging: false,
     };

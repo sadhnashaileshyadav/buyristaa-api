@@ -1,15 +1,7 @@
-import {
-  BeforeInsert,
-  Column,
-  Entity,
-  Index,
-  JoinColumn,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Exclude } from 'class-transformer';
-import { Role } from './role.entity';
+import { Role } from 'src/roles/role.enum';
 
 @Entity()
 export class User {
@@ -37,9 +29,11 @@ export class User {
   @Exclude()
   password: string;
 
-  @OneToOne(() => Role, {})
-  @JoinColumn()
-  @Index('roleId', { unique: false })
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
   role: Role;
 
   @Column({ default: true })

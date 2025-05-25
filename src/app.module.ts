@@ -12,7 +12,7 @@ import { DataSource } from 'typeorm';
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env.development.local',
+      envFilePath: '.local.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

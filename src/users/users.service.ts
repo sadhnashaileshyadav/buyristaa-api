@@ -4,28 +4,17 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from './entities/role.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(Role)
-    private readonly roleRespository: Repository<Role>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User | undefined> {
-    const role: any = await this.roleRespository.findOne({
-      where: { id: createUserDto.role },
-    });
-
-    if (!role) {
-      throw new BadRequestException();
-    }
-
     const user = new User();
-    user.role = role;
+    user.role = createUserDto.role;
     user.name = createUserDto.name;
     user.password = createUserDto.password;
     user.email = createUserDto.email;
@@ -36,7 +25,7 @@ export class UsersService {
   }
 
   async findAll() {
-    return this.userRepository.find({ relations: { role: true } });
+    return this.userRepository.find();
   }
 
   findOne(id: number) {
@@ -70,8 +59,8 @@ export class UsersService {
   }
 
   async findByUsername(username: string): Promise<any> {
-    return await this.userRepository.find({
-      where: [{ email: username }],
+    return await this.userRepository.findOne({
+      where: [{ email: username, is_active: true }],
     });
   }
 

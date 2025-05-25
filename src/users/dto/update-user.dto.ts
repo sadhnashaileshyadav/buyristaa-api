@@ -3,21 +3,16 @@ import { CreateUserDto } from './create-user.dto';
 import {
   IsEmail,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
   Matches,
 } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { Role } from 'src/roles/role.enum';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
-  @IsOptional()
-  @IsNumber()
-  @Transform(({ value }) => {
-    return Number(value);
-  })
-  role?: number;
+  @IsString()
+  role?: Role;
 
   @IsNotEmpty()
   @IsString()
