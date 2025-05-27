@@ -20,10 +20,7 @@ export class User {
 
   @BeforeInsert()
   async hashPassword() {
-    this.password = await bcrypt.hash(
-      this.password,
-      Number(process.env.HASH_SALT),
-    );
+    this.password = await bcrypt.hash(this.password, 10);
   }
   @Column()
   @Exclude()
