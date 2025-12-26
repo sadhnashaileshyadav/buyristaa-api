@@ -153,42 +153,64 @@ export class UsersService {
   }
 
   async getReferralReport() {
-    const allUsers = await this.userRepository.find({ relations: ['billingAddress'] });
-    let totalLevel1 = 0;
-    let totalLevel2 = 0;
-    let totalUsers = allUsers.length;
-    let activeUsers = allUsers.filter(u => u.is_active).length;
+    const totalUsers = await this.userRepository.count();
+    const activeUsers = await this.userRepository.count({ where: { is_active: true } });
 
-    for (const user of allUsers) {
-      const level1 = await this.userRepository.count({ where: { referredBy: user.id } });
-      totalLevel1 += level1;
-      for (const l1 of await this.userRepository.find({ where: { referredBy: user.id } })) {
-        totalLevel2 += await this.userRepository.count({ where: { referredBy: l1.id } });
-      }
-    }
+    // Count all level 1 referrals
+    const totalLevel1 = await this.userRepository.count({ where: { referredBy: 0 } }); // assuming 0 means no referrer
+
+    // Count all level 2 referrals (users referred by users who have referrers)
+    const level2Users = await this.userRepository
+      .createQueryBuilder('u')
+      .innerJoin('users', 'ref1', 'u.referredBy = ref1.id')
+      .where('ref1.referredBy != 0')
+      .getCount();
 
     return {
       totalUsers,
       activeUsers,
       totalLevel1Referrals: totalLevel1,
-      totalLevel2Referrals: totalLevel2,
+      totalLevel2Referrals: level2Users,
     };
   }
 
   async getAllReferrals(level: number = 2) {
-    const allUsers = await this.userRepository.find();
-    let allReferrals: any[] = [];
+    let query = this.userRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.billingAddress', 'address')
+      .where('user.referredBy != 0'); // Only users with referrers
 
-    for (const user of allUsers) {
-      try {
-        const referrals = await this.getReferrals(user.id, level);
-        allReferrals = [...allReferrals, ...referrals];
-      } catch (error) {
-        // Skip invalid users
-        continue;
-      }
+    if (level === 1) {
+      // Only level 1
+      query = query.andWhere('user.referredBy IN (SELECT DISTINCT id FROM users WHERE referredBy = 0)');
     }
+    // For level 2, include all with referrers
 
-    return allReferrals;
+    const referrals = await query.getMany();
+
+    // Add payment status and level
+    const result = await Promise.all(
+      referrals.map(async (user) => {
+        const payments = await this.paymentRepository.find({
+          where: { userId: user.id },
+          order: { createdAt: 'DESC' },
+          take: 1,
+        });
+        const level = await this.getReferralLevel(user.id);
+        return { ...user, level, paymentStatus: payments.length > 0 ? payments[0].status : 'no payment' };
+      })
+    );
+
+    return result;
+  }
+
+  private async getReferralLevel(userId: number): Promise<number> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user || user.referredBy === 0) return 0;
+    
+    const referrer = await this.userRepository.findOne({ where: { id: user.referredBy } });
+    if (!referrer || referrer.referredBy === 0) return 1;
+    
+    return 2;
   }
 }
