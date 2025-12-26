@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { UnprocessableEntityException, ValidationPipe } from '@nestjs/common';
 import { useContainer } from 'class-validator';
-import { TransformInterceptor } from './lib/Interceptors/transform-interceptor';
+import { TransformInterceptor } from './commen/Interceptors/transform-interceptor';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
@@ -24,6 +24,11 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new TransformInterceptor());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  app.enableCors({
+    origin: process.env.UI_URL || 'http://localhost:4200',
+    credentials: true,
+  });
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -1,11 +1,17 @@
 import { Module } from '@nestjs/common';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './module/users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DbConfig } from './config/database.config';
+import { DbConfig } from './core/config/database.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './auth/auth.module';
-import isUniqueConstraint from './lib/validator/is-unique-constraint';
+import { AuthModule } from './core/auth/auth.module';
+import isUniqueConstraint from './commen/validator/is-unique-constraint';
 import { DataSource } from 'typeorm';
+import { Reflector } from '@nestjs/core';
+import { CategoriesModule } from './module/categories/categories.module';
+import { UploadModule } from './core/upload/upload.module';
+import { ProdcutsModule } from './module/prodcuts/prodcuts.module';
+import { BillingAddressModule } from './module/billing-address/billing-address.module';
+import { PaymentModule } from './module/payment/payment.module';
 
 @Module({
   imports: [
@@ -24,8 +30,13 @@ import { DataSource } from 'typeorm';
       },
     }),
     AuthModule,
+    CategoriesModule,
+    UploadModule,
+    ProdcutsModule,
+    BillingAddressModule,
+    PaymentModule,
   ],
   controllers: [],
-  providers: [isUniqueConstraint],
+  providers: [isUniqueConstraint, Reflector],
 })
 export class AppModule {}

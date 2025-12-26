@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
-    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed"
+    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
+    "create:admin": "nest build && node dist/scripts/create-admin.js"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -37,8 +38,11 @@
     "mysql2": "^3.14.1",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "razorpay": "^2.9.6",
+    "referral-codes": "^3.0.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
+    "slugify": "^1.6.6",
     "typeorm": "^0.3.24",
     "typeorm-extension": "^3.7.1"
   },
@@ -49,6 +53,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.2",
+    "@types/multer": "^2.0.0",
     "@types/node": "^20.3.1",
     "@types/passport-jwt": "^4.0.1",
     "@types/sequelize": "^4.28.20",
