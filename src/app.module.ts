@@ -18,7 +18,8 @@ import { PaymentModule } from './module/payment/payment.module';
     UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.local.env',
+      // Production env file confi
+      envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
