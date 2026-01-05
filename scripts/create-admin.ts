@@ -13,7 +13,7 @@ async function bootstrap() {
 
   // Define the data for the admin user
   // We align these fields with the CreateUserDto structure (username, email, password)
-  const name = 'Vishal_Admin'; // Added a username field as required by User entity
+  const name = 'Vishal Signh'; // Added a username field as required by User entity
   const email = 'info@buyristaa.com';
   const password = 'devops!@#123';
   // Note: mobile, name, confirmPassword, and referralCode were not part of our User entity/DTO

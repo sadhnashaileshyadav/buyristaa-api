@@ -77,7 +77,7 @@ export class UsersService {
 
   async findByUsername(username: string): Promise<any> {
     return await this.userRepository.findOne({
-      where: [{ email: username, is_active: true }],
+      where: [{ email: username }],
       relations: ['roles'],
     });
   }
