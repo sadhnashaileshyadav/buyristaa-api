@@ -114,6 +114,23 @@ export class PaymentService {
     };
   }
 
+  async approveUserManually(userId: number): Promise<any> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });  
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    if (user.is_active) {
+      throw new BadRequestException('User is already active');
+    }
+    user.is_active = true;
+    await this.userRepository.save(user);
+    await this.handleReferralPoints(user);
+    return {
+      message: 'User manually approved and activated',
+      user: user,
+    };
+  }
+
   private async handleReferralPoints(user: User): Promise<void> {
     if (user.referredBy && user.referredBy !== 0) {
       // First level: referrer gets 100

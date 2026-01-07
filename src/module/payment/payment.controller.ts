@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Param, BadRequestException } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
@@ -17,5 +17,10 @@ export class PaymentController {
   @Post('verify')
   verifyPayment(@Body() verifyPaymentDto: VerifyPaymentDto) {
     return this.paymentService.verifyPayment(verifyPaymentDto);
+  }
+
+  @Post('approve-user-manually/:userId')
+  approveUserManually(@Body() body: any, @Param('userId') userId: number) {
+    return this.paymentService.approveUserManually(userId);
   }
 }
