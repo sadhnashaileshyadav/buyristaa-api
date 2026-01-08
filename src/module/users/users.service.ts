@@ -51,7 +51,12 @@ export class UsersService {
   }
   
   async findAll() {
-    return this.userRepository.find();
+    // with referred by user and billing address
+    return this.userRepository.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'roles')
+      .leftJoinAndSelect('user.billingAddress', 'billingAddress')
+      .leftJoinAndMapOne('user.referredByUser', User, 'referredByUser', 'user.referredBy = referredByUser.id')
+      .getMany();
   }
 
   findOne(id: number) {
@@ -116,6 +121,9 @@ export class UsersService {
     if (!userId || userId <= 0) {
       throw new BadRequestException('Invalid user ID');
     }
+
+    const rootReferrer = await this.userRepository.findOne({ where: { id: userId } });
+
     const level1Referrals = await this.userRepository.find({
       where: { referredBy: userId },
       relations: ['billingAddress'],
@@ -128,7 +136,12 @@ export class UsersService {
         order: { createdAt: 'DESC' },
         take: 1,
       });
-      allReferrals.push({ ...user, level: 1, paymentStatus: payments.length > 0 ? payments[0].status : 'no payment' });
+      allReferrals.push({ 
+        ...user, 
+        referredByUser: rootReferrer, 
+        level: 1, 
+        paymentStatus: payments.length > 0 ? payments[0].status : 'no payment' 
+      });
     }
 
     if (level >= 2) {
@@ -144,7 +157,14 @@ export class UsersService {
             order: { createdAt: 'DESC' },
             take: 1,
           });
-          allReferrals.push({ ...user, level: 2, paymentStatus: payments.length > 0 ? payments[0].status : 'no payment' });
+
+          const referrer = level1Referrals.find(u => u.id === user.referredBy);
+          allReferrals.push({ 
+            ...user, 
+            referredByUser: referrer, 
+            level: 2, 
+            paymentStatus: payments.length > 0 ? payments[0].status : 'no payment' 
+          });
         }
       }
     }
